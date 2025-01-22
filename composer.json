@@ -1,0 +1,18 @@
+{
+    "name": "pablo/botdiscordphp",
+    "autoload": {
+        "psr-4": {
+            "app\\": ["src/", "public/", "core/"]
+        }
+    },
+    "authors": [
+        {
+            "name": "Pablo",
+            "email": "pablo.sm14@aluno.ifsc.edu.br"
+        }
+    ],
+    "require": {
+        "team-reflex/discord-php": "^7.3",
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
