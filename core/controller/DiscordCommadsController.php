@@ -1,13 +1,14 @@
 <?php
 
-namespace app;
+namespace app\controller;
 
+use app\service\WeatherCheckerService;
 use Discord\Discord;
-use Discord\WebSockets\Intents;
 use Discord\Parts\Channel\Message;
+use Discord\WebSockets\Intents;
 use React\EventLoop\Factory;
 
-class DiscordCommads {
+class DiscordCommadsController {
     private $discord;
     private $loop;
     private string $token;
@@ -25,10 +26,8 @@ class DiscordCommads {
             'token' => $this->token,
             'intents' => Intents::getDefaultIntents() | Intents::MESSAGE_CONTENT,
         ]);
-    }
 
-    public function run($all) {
-        $this->discord->on('ready', function (Discord $discord) use ($all) {
+        $this->discord->on('ready', function (Discord $discord) {
             echo 'Bot is ready!', PHP_EOL;
 
             echo 'Número de servidores conectados: ' . count($discord->guilds) . PHP_EOL;
@@ -37,22 +36,24 @@ class DiscordCommads {
                 echo "Conectado ao servidor: {$guild->name} ({$guild->id})\n";
             }
 
-            if ($all) {
-                foreach ($discord->guilds as $guild) {
-                    $this->loop->addPeriodicTimer(60, function () use ($guild) {
-                        $this->enviarMensagemAutomaticoTodosGrupos($guild);
-                    });
-                }
-            } else {
-                $this->loop->addPeriodicTimer(60, function () use ($discord) {
-                    $this->enviarMensagemAutomaticoGrupoEspecifico();
-                });
-            }
-
             $discord->on('message', function (Message $message, Discord $discord) {
                 $this->commandsMessageBot($message);
             });
         });
+    }
+
+    public function enviarMensagem($all) {
+        if ($all) {
+            foreach ($this->discord->guilds as $guild) {
+                $this->loop->addPeriodicTimer(5, function () use ($guild) {
+                    $this->enviarMensagemAutomaticoTodosGrupos($guild);
+                });
+            }
+        } else {
+            $this->loop->addPeriodicTimer(2, function () {
+                $this->enviarMensagemAutomaticoGrupoEspecifico();
+            });
+        }
 
         $this->loop->run();
     }
@@ -61,7 +62,6 @@ class DiscordCommads {
         $generalChannel = $guild->channels->filter(function ($channel) {
             return $channel->type == \Discord\Parts\Channel\Channel::TYPE_TEXT;
         })->first();
-        exit;
 
         // IDs dos usuários que você deseja mencionar
         $userIdList = [
@@ -108,7 +108,7 @@ class DiscordCommads {
         }
 
         if ($message->content == '!temperatura') {
-            $data = new WeatherChecker;
+            $data = new WeatherCheckerService;
 
             $cityResponse = $data->getWeather('Florianópolis');
             $responseTemp = $cityResponse['temperature'] > 30 ? 'TÁ MT CALOR PITBULL' : 'tolerável dog, tolerável';

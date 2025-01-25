@@ -1,8 +1,8 @@
 <?php
 
-namespace app;
+namespace app\service;
 
-class WeatherChecker {
+class WeatherCheckerService {
     private string $apiKey;
 
     public function __construct() {
@@ -11,6 +11,7 @@ class WeatherChecker {
 
     public function getWeather($city) {
         $url = "http://api.openweathermap.org/data/2.5/weather?q={$city}&appid={$this->apiKey}&units=metric";
+
         $weatherData = $this->fetchData($url);
 
         if ($weatherData) {
