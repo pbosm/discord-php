@@ -3,3 +3,6 @@
 
 # Ignore assets directory
 /assets/
+
+# Ignore IDE
+.idea
